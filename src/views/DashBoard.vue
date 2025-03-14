@@ -59,7 +59,7 @@ const submitRoadmap = async () => {
     // Create the payload for the POST request
     const newRoadmap = {
       name: newRoadmapData.value.name,
-      category: newRoadmapData.value.category,
+      category: newRoadmapData.value.superSubCategory,
       total_days: newRoadmapData.value.timeToLearn, // Assuming this is the total time to learn
       daily_hours: newRoadmapData.value.hoursInDay, // Assuming this is the daily study hours
       available_days: newRoadmapData.value.daysInWeek // Selected days in the week
@@ -390,7 +390,7 @@ select {
 input:focus,
 select:focus {
   outline: none;
-  border-color: #4f46e5;
+  border-color: linear-gradient(135deg, #1e293b, #0f172a);
   box-shadow: 0 0 5px rgba(79, 70, 229, 0.3);
 }
 
