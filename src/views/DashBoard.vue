@@ -28,7 +28,6 @@ const categories = ref([]) // Store the main categories
 const subCategories = ref([]) // Store subcategories
 const superSubCategories = ref([]) // Store super subcategories
 
-
 // Open the modal
 const createRoadmap = () => {
   showModal.value = true
@@ -76,14 +75,14 @@ const fetchCategories = async () => {
 }
 
 const fetchSubCategories = (categoryId) => {
-  const selectedCategory = categories.value.find(cat => cat.id === categoryId)
+  const selectedCategory = categories.value.find((cat) => cat.id === categoryId)
   subCategories.value = selectedCategory ? selectedCategory.children : []
   superSubCategories.value = [] // Reset super subcategories when changing category
 }
 
 // Fetch super subcategories based on selected subcategory
 const fetchSuperSubCategories = (subCategoryId) => {
-  const selectedSubCategory = subCategories.value.find(subCat => subCat.id === subCategoryId)
+  const selectedSubCategory = subCategories.value.find((subCat) => subCat.id === subCategoryId)
   superSubCategories.value = selectedSubCategory ? selectedSubCategory.children : []
 }
 
@@ -122,7 +121,12 @@ onMounted(() => {
           </div>
           <div class="form-group">
             <label for="category">Kategoriýa:</label>
-            <select v-model="newRoadmapData.category" id="category" @change="fetchSubCategories(newRoadmapData.category)" required>
+            <select
+              v-model="newRoadmapData.category"
+              id="category"
+              @change="fetchSubCategories(newRoadmapData.category)"
+              required
+            >
               <option value="" disabled selected>Select Category</option>
               <option v-for="category in categories" :key="category.id" :value="category.id">
                 {{ category.name }}
@@ -131,9 +135,18 @@ onMounted(() => {
           </div>
           <div class="form-group">
             <label for="subCategory">SubKategoriýa:</label>
-            <select v-model="newRoadmapData.subCategory" id="subCategory" @change="fetchSuperSubCategories(newRoadmapData.subCategory)" required>
+            <select
+              v-model="newRoadmapData.subCategory"
+              id="subCategory"
+              @change="fetchSuperSubCategories(newRoadmapData.subCategory)"
+              required
+            >
               <option value="" disabled selected>Select SubCategory</option>
-              <option v-for="subCategory in subCategories" :key="subCategory.id" :value="subCategory.id">
+              <option
+                v-for="subCategory in subCategories"
+                :key="subCategory.id"
+                :value="subCategory.id"
+              >
                 {{ subCategory.name }}
               </option>
             </select>
@@ -144,7 +157,11 @@ onMounted(() => {
             <label for="superSubCategory">Super SubKategoriýa:</label>
             <select v-model="newRoadmapData.superSubCategory" id="superSubCategory" required>
               <option value="" disabled selected>Select Super SubCategory</option>
-              <option v-for="superSubCategory in superSubCategories" :key="superSubCategory.id" :value="superSubCategory.id">
+              <option
+                v-for="superSubCategory in superSubCategories"
+                :key="superSubCategory.id"
+                :value="superSubCategory.id"
+              >
                 {{ superSubCategory.name }}
               </option>
             </select>
@@ -169,11 +186,7 @@ onMounted(() => {
               class="custom-multiselect"
               required
             >
-              <option
-                v-for="day in availableDays"
-                :key="day.id"
-                :value="day.id"
-              >
+              <option v-for="day in availableDays" :key="day.id" :value="day.id">
                 {{ day.name }}
               </option>
             </select>
@@ -263,19 +276,6 @@ button:disabled {
   box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Roadmap Title */
-.dashboard-card h3 {
-  font-size: 20px;
-  color: #f8fafc;
-  margin-bottom: 8px;
-}
-
-/* Created Date */
-.dashboard-card p {
-  color: #94a3b8;
-  font-size: 14px;
-}
-
 /* Modal Overlay */
 .modal-overlay {
   position: fixed;
@@ -287,7 +287,7 @@ button:disabled {
   display: flex;
   justify-content: center;
   align-items: center;
-  animation: fadeIn 0.4s ease;
+  animation: fadeIn 0.5s ease-out;
 }
 
 /* Modal Container */
@@ -298,8 +298,8 @@ button:disabled {
   width: 100%;
   max-width: 600px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
-  transform: scale(0.8);
-  animation: scaleUp 0.3s ease forwards;
+  transform: scale(0.9);
+  animation: scaleUp 0.5s ease forwards;
 }
 
 /* Modal Header */
@@ -313,7 +313,7 @@ h2 {
 
 /* Form Group */
 .form-group {
-  margin-bottom: 15px;
+  margin-bottom: 20px;
 }
 
 label {
@@ -324,8 +324,9 @@ label {
   margin-bottom: 8px;
 }
 
-input {
-  width: 90%;
+input,
+select {
+  width: 100%;
   padding: 12px;
   font-size: 14px;
   border: 2px solid #e2e8f0;
@@ -334,10 +335,15 @@ input {
   transition: border 0.3s ease;
 }
 
-input:focus {
+input:focus,
+select:focus {
   outline: none;
   border-color: #4f46e5;
   box-shadow: 0 0 5px rgba(79, 70, 229, 0.3);
+}
+
+input {
+  margin-top: 5px;
 }
 
 /* Modal Actions */
@@ -372,43 +378,6 @@ button:disabled {
   cursor: not-allowed;
 }
 
-input,
-select {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  font-size: 16px;
-  margin-top: 5px;
-}
-
-input:focus,
-select:focus {
-  border-color: #4338ca;
-  outline: none;
-}
-
-select {
-  height: 150px; /* Adjust height for multiselect */
-}
-
-.custom-multiselect {
-  background-color: #f8f9fa;
-  color: #333;
-  border-radius: 5px;
-  padding: 10px;
-}
-
-.custom-multiselect option {
-  padding: 8px;
-  background-color: #ffffff;
-}
-
-.custom-multiselect option:hover {
-  background-color: #4338ca;
-  color: white;
-}
-
 /* Smooth Modal Animations */
 @keyframes fadeIn {
   from {
@@ -421,7 +390,7 @@ select {
 
 @keyframes scaleUp {
   from {
-    transform: scale(0.8);
+    transform: scale(0.9);
   }
   to {
     transform: scale(1);
