@@ -1,14 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-const roadmaps = ref([
-  { id: 1, name: 'Frontend Developer', created_at: '2024-01-10' },
-  { id: 2, name: 'Backend Developer', created_at: '2024-02-15' },
-  { id: 3, name: 'Full-Stack Developer', created_at: '2024-03-01' },
-  { id: 4, name: 'DevOps Engineer', created_at: '2024-03-10' },
-  { id: 5, name: 'Data Scientist', created_at: '2024-04-05' },
-])
-
 const loading = ref(false)
 const errorMessage = ref('')
 const showModal = ref(false)
@@ -23,10 +15,37 @@ const newRoadmapData = ref({
   daysInWeek: [],
 })
 
+const roadmaps = ref([])
 const availableDays = ref([])
 const categories = ref([]) // Store the main categories
 const subCategories = ref([]) // Store subcategories
 const superSubCategories = ref([]) // Store super subcategories
+
+const fetchRoadmaps = async () => {
+  try {
+    loading.value = true
+    const token = localStorage.getItem('token')
+
+    const response = await fetch('http://192.168.166.138:8000/api/roadmaps/', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Token ${token}`,
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch roadmaps')
+    }
+
+    const data = await response.json()
+    roadmaps.value = data
+  } catch (error) {
+    errorMessage.value = 'Failed to fetch roadmaps'
+  } finally {
+    loading.value = false
+  }
+}
+
 
 // Open the modal
 const createRoadmap = () => {
@@ -122,6 +141,7 @@ const fetchSuperSubCategories = (subCategoryId) => {
 onMounted(() => {
   fetchAvailableDays()
   fetchCategories()
+  fetchRoadmaps()
 })
 </script>
 
@@ -138,7 +158,7 @@ onMounted(() => {
     <div class="dashboard-grid">
       <div v-for="roadmap in roadmaps" :key="roadmap.id" class="dashboard-card">
         <h3>{{ roadmap.name }}</h3>
-        <p>Created: {{ new Date(roadmap.created_at).toLocaleDateString() }}</p>
+        <p>Created: {{ roadmap.date_created }}</p>
       </div>
     </div>
 
