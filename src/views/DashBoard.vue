@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 // Static list of roadmaps
 const roadmaps = ref([
@@ -22,8 +22,10 @@ const newRoadmapData = ref({
   superSubCategory: '',
   timeToLearn: '',
   hoursInDay: '',
-  daysInWeek: '',
+  daysInWeek: [], // This will hold an array of selected days
 })
+
+const availableDays = ref([]) // To store the days of the week fetched from API
 
 // Open the modal
 const createRoadmap = () => {
@@ -49,6 +51,22 @@ const submitRoadmap = () => {
 const closeModal = () => {
   showModal.value = false
 }
+
+// Fetch the available days from the API
+const fetchAvailableDays = async () => {
+  try {
+    const response = await fetch('http://192.168.166.138:8000/api/weekdays/') // Replace with your actual API endpoint
+    const data = await response.json()
+    availableDays.value = data // Assuming the response is an array of days
+  } catch (error) {
+    errorMessage.value = 'Failed to fetch days of the week'
+  }
+}
+
+// Fetch days on component mount
+onMounted(() => {
+  fetchAvailableDays()
+})
 </script>
 
 <template>
@@ -102,9 +120,26 @@ const closeModal = () => {
             <label for="hoursInDay">Hours per Day:</label>
             <input v-model="newRoadmapData.hoursInDay" id="hoursInDay" type="number" required />
           </div>
+
+          <!-- Multiselect Dropdown for Days of the Week -->
           <div class="form-group">
             <label for="daysInWeek">Days per Week:</label>
-            <input v-model="newRoadmapData.daysInWeek" id="daysInWeek" type="number" required />
+            <select
+              v-model="newRoadmapData.daysInWeek"
+              id="daysInWeek"
+              multiple
+              size="7"
+              class="custom-multiselect"
+              required
+            >
+              <option
+                v-for="day in availableDays"
+                :key="day.id"
+                :value="day.id"
+              >
+                {{ day.name }}
+              </option>
+            </select>
           </div>
 
           <div class="modal-actions">
@@ -225,7 +260,8 @@ button:disabled {
   background-color: #f8fafc;
   padding: 30px;
   border-radius: 16px;
-  width: 550px;
+  width: 100%;
+  max-width: 600px;
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
   transform: scale(0.8);
   animation: scaleUp 0.3s ease forwards;
@@ -299,6 +335,43 @@ button[type='button'] {
 button:disabled {
   background-color: #c4c4c4;
   cursor: not-allowed;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+  margin-top: 5px;
+}
+
+input:focus,
+select:focus {
+  border-color: #4338ca;
+  outline: none;
+}
+
+select {
+  height: 150px; /* Adjust height for multiselect */
+}
+
+.custom-multiselect {
+  background-color: #f8f9fa;
+  color: #333;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.custom-multiselect option {
+  padding: 8px;
+  background-color: #ffffff;
+}
+
+.custom-multiselect option:hover {
+  background-color: #4338ca;
+  color: white;
 }
 
 /* Smooth Modal Animations */

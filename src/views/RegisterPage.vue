@@ -5,6 +5,9 @@ import { useRouter } from "vue-router";
 const username = ref("");
 const email = ref("");
 const password = ref("");
+const first_name = ref("")
+const last_name = ref("")
+const date_of_birth = ref("")
 const loading = ref(false);
 const errorMessage = ref("");
 const router = useRouter();
@@ -21,6 +24,9 @@ const register = async () => {
         username: username.value,
         email: email.value,
         password: password.value,
+        first_name: first_name.value,
+        last_name: last_name.value,
+        date_of_birth: date_of_birth.value,
       }),
     });
 
