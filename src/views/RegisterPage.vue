@@ -47,7 +47,7 @@ const register = async () => {
       <h2>Register</h2>
       <input v-model="username" type="text" placeholder="Username" required />
       <input v-model="email" type="email" placeholder="Email" required />
-      <input v-model="password" type="password" placeholder="Password" required />
+      <input v-model="password" type="password" placeholder="Password" required @keydown.enter="register" />
       <button @click="register">Register</button>
       <p>Already have an account? <router-link to="/login">Login</router-link></p>
     </div>

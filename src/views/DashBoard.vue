@@ -50,7 +50,7 @@ const createRoadmap = () => {
 <style scoped>
 /* General Layout */
 .dashboard-container {
-  max-width: 1000px;
+  max-width: 1500px;
   margin: auto;
   padding: 40px 20px;
   text-align: center;
