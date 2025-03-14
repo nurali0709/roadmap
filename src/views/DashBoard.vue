@@ -86,9 +86,11 @@ const submitRoadmap = async () => {
     const data = await response.json()
 
     // If the request is successful (e.g., 201 Created), update the UI accordingly
+    console.log(data)
     const createdRoadmap = {
-      id: roadmaps.value.length + 1,
-      name: newRoadmapData.value.name,
+      id: data.id,
+      name: data.name,
+      date_created: data.date_created
     }
     roadmaps.value.push(createdRoadmap)
     showModal.value = false // Close modal after submission
@@ -156,10 +158,10 @@ onMounted(() => {
 
     <!-- Roadmap Grid -->
     <div class="dashboard-grid">
-      <div v-for="roadmap in roadmaps" :key="roadmap.id" class="dashboard-card">
+      <router-link :to="`/roadmap/${roadmap.id}`" v-for="roadmap in roadmaps" :key="roadmap.id" class="dashboard-card">
         <h3>{{ roadmap.name }}</h3>
-        <p>Created: {{ roadmap.date_created }}</p>
-      </div>
+        <p>Döredilen wagty: {{ roadmap.date_created }}</p>
+      </router-link>
     </div>
 
     <!-- Modal for Creating a New Roadmap -->
@@ -219,17 +221,17 @@ onMounted(() => {
             </select>
           </div>
           <div class="form-group">
-            <label for="timeToLearn">Öwrenmäne wagt:</label>
+            <label for="timeToLearn">Jemi öwrenmek üçin aýrylan gün:</label>
             <input v-model="newRoadmapData.timeToLearn" id="timeToLearn" type="number" required />
           </div>
           <div class="form-group">
-            <label for="hoursInDay">Günde näçe wagt:</label>
+            <label for="hoursInDay">Günlük öwrenmek üçin aýrylan sagat:</label>
             <input v-model="newRoadmapData.hoursInDay" id="hoursInDay" type="number" required />
           </div>
 
           <!-- Multiselect Dropdown for Days of the Week -->
           <div class="form-group">
-            <label for="daysInWeek">Hepdäň günleri:</label>
+            <label for="daysInWeek">Hepdäniň günleri:</label>
             <select
               v-model="newRoadmapData.daysInWeek"
               id="daysInWeek"
@@ -321,6 +323,8 @@ button:disabled {
   transition: all 0.3s ease;
   border: 1px solid rgba(255, 255, 255, 0.2);
   text-align: center;
+  color: white;
+  text-decoration: none;
 }
 
 .dashboard-card:hover {
@@ -352,6 +356,8 @@ button:disabled {
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
   transform: scale(0.9);
   animation: scaleUp 0.5s ease forwards;
+  max-height: 80%;
+  overflow-y: auto;
 }
 
 /* Modal Header */
