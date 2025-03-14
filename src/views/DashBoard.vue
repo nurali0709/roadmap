@@ -34,20 +34,52 @@ const createRoadmap = () => {
 }
 
 // Submit the new roadmap
-const submitRoadmap = () => {
+const submitRoadmap = async () => {
   loading.value = true
-  setTimeout(() => {
+  try {
+    // Create the payload for the POST request
     const newRoadmap = {
+      name: newRoadmapData.value.name,
+      category: newRoadmapData.value.category,
+      total_days: newRoadmapData.value.timeToLearn, // Assuming this is the total time to learn
+      daily_hours: newRoadmapData.value.hoursInDay, // Assuming this is the daily study hours
+      available_days: newRoadmapData.value.daysInWeek // Selected days in the week
+    }
+
+    const token = localStorage.getItem('token')
+
+    // Send the data to the backend using fetch
+    const response = await fetch('http://192.168.166.138:8000/api/roadmaps/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${token}`,
+      },
+      body: JSON.stringify(newRoadmap), // Convert the payload to a JSON string
+    })
+
+    if (!response.ok) {
+      // Handle HTTP errors (status code outside of 2xx)
+      throw new Error('Failed to submit the roadmap')
+    }
+
+    // If the request is successful, handle the response
+    const data = await response.json()
+
+    // If the request is successful (e.g., 201 Created), update the UI accordingly
+    const createdRoadmap = {
       id: roadmaps.value.length + 1,
       name: newRoadmapData.value.name,
-      created_at: new Date().toISOString().split('T')[0], // Today's date
     }
-    roadmaps.value.push(newRoadmap)
+    roadmaps.value.push(createdRoadmap)
     showModal.value = false // Close modal after submission
+  } catch (error) {
+    console.error("Error submitting roadmap:", error)
+    errorMessage.value = "Something went wrong. Please try again." // Display an error message
+  } finally {
     loading.value = false
-  }, 1000) // Simulate API delay
+  }
 }
-
 // Close the modal
 const closeModal = () => {
   showModal.value = false
@@ -168,7 +200,7 @@ onMounted(() => {
           </div>
           <div class="form-group">
             <label for="timeToLearn">Öwrenmäne wagt:</label>
-            <input v-model="newRoadmapData.timeToLearn" id="timeToLearn" type="text" required />
+            <input v-model="newRoadmapData.timeToLearn" id="timeToLearn" type="number" required />
           </div>
           <div class="form-group">
             <label for="hoursInDay">Günde näçe wagt:</label>
