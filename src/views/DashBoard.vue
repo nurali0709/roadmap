@@ -1,7 +1,6 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-// Static list of roadmaps
 const roadmaps = ref([
   { id: 1, name: 'Frontend Developer', created_at: '2024-01-10' },
   { id: 2, name: 'Backend Developer', created_at: '2024-02-15' },
@@ -12,9 +11,8 @@ const roadmaps = ref([
 
 const loading = ref(false)
 const errorMessage = ref('')
-const showModal = ref(false) // Control modal visibility
+const showModal = ref(false)
 
-// Data for new roadmap form
 const newRoadmapData = ref({
   name: '',
   category: '',
@@ -22,10 +20,14 @@ const newRoadmapData = ref({
   superSubCategory: '',
   timeToLearn: '',
   hoursInDay: '',
-  daysInWeek: [], // This will hold an array of selected days
+  daysInWeek: [],
 })
 
-const availableDays = ref([]) // To store the days of the week fetched from API
+const availableDays = ref([])
+const categories = ref([]) // Store the main categories
+const subCategories = ref([]) // Store subcategories
+const superSubCategories = ref([]) // Store super subcategories
+
 
 // Open the modal
 const createRoadmap = () => {
@@ -63,19 +65,42 @@ const fetchAvailableDays = async () => {
   }
 }
 
+const fetchCategories = async () => {
+  try {
+    const response = await fetch('http://192.168.166.138:8000/api/categories/') // Replace with your actual API endpoint
+    const data = await response.json()
+    categories.value = data // Assuming the response is an array of categories
+  } catch (error) {
+    errorMessage.value = 'Failed to fetch categories'
+  }
+}
+
+const fetchSubCategories = (categoryId) => {
+  const selectedCategory = categories.value.find(cat => cat.id === categoryId)
+  subCategories.value = selectedCategory ? selectedCategory.children : []
+  superSubCategories.value = [] // Reset super subcategories when changing category
+}
+
+// Fetch super subcategories based on selected subcategory
+const fetchSuperSubCategories = (subCategoryId) => {
+  const selectedSubCategory = subCategories.value.find(subCat => subCat.id === subCategoryId)
+  superSubCategories.value = selectedSubCategory ? selectedSubCategory.children : []
+}
+
 // Fetch days on component mount
 onMounted(() => {
   fetchAvailableDays()
+  fetchCategories()
 })
 </script>
 
 <template>
   <div class="dashboard-container">
-    <h1>My Roadmaps</h1>
+    <h1>Meniň Ýol Kartalarym</h1>
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
 
     <button @click="createRoadmap" :disabled="loading">
-      {{ loading ? 'Generating...' : 'Generate New Roadmap' }}
+      {{ loading ? 'Generating...' : 'Täze Ýol Karta Generirle' }}
     </button>
 
     <!-- Roadmap Grid -->
@@ -89,41 +114,53 @@ onMounted(() => {
     <!-- Modal for Creating a New Roadmap -->
     <div v-if="showModal" class="modal-overlay">
       <div class="modal-container">
-        <h2>Create New Roadmap</h2>
+        <h2>Täze ýol karta döret</h2>
         <form @submit.prevent="submitRoadmap">
           <div class="form-group">
-            <label for="name">Name:</label>
+            <label for="name">Ady:</label>
             <input v-model="newRoadmapData.name" id="name" type="text" required />
           </div>
           <div class="form-group">
-            <label for="category">Category:</label>
-            <input v-model="newRoadmapData.category" id="category" type="text" required />
+            <label for="category">Kategoriýa:</label>
+            <select v-model="newRoadmapData.category" id="category" @change="fetchSubCategories(newRoadmapData.category)" required>
+              <option value="" disabled selected>Select Category</option>
+              <option v-for="category in categories" :key="category.id" :value="category.id">
+                {{ category.name }}
+              </option>
+            </select>
           </div>
           <div class="form-group">
-            <label for="subCategory">SubCategory:</label>
-            <input v-model="newRoadmapData.subCategory" id="subCategory" type="text" required />
+            <label for="subCategory">SubKategoriýa:</label>
+            <select v-model="newRoadmapData.subCategory" id="subCategory" @change="fetchSuperSubCategories(newRoadmapData.subCategory)" required>
+              <option value="" disabled selected>Select SubCategory</option>
+              <option v-for="subCategory in subCategories" :key="subCategory.id" :value="subCategory.id">
+                {{ subCategory.name }}
+              </option>
+            </select>
+          </div>
+
+          <!-- Super Subcategory Dropdown -->
+          <div class="form-group">
+            <label for="superSubCategory">Super SubKategoriýa:</label>
+            <select v-model="newRoadmapData.superSubCategory" id="superSubCategory" required>
+              <option value="" disabled selected>Select Super SubCategory</option>
+              <option v-for="superSubCategory in superSubCategories" :key="superSubCategory.id" :value="superSubCategory.id">
+                {{ superSubCategory.name }}
+              </option>
+            </select>
           </div>
           <div class="form-group">
-            <label for="superSubCategory">Super SubCategory:</label>
-            <input
-              v-model="newRoadmapData.superSubCategory"
-              id="superSubCategory"
-              type="text"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <label for="timeToLearn">Time to Learn:</label>
+            <label for="timeToLearn">Öwrenmäne wagt:</label>
             <input v-model="newRoadmapData.timeToLearn" id="timeToLearn" type="text" required />
           </div>
           <div class="form-group">
-            <label for="hoursInDay">Hours per Day:</label>
+            <label for="hoursInDay">Günde näçe wagt:</label>
             <input v-model="newRoadmapData.hoursInDay" id="hoursInDay" type="number" required />
           </div>
 
           <!-- Multiselect Dropdown for Days of the Week -->
           <div class="form-group">
-            <label for="daysInWeek">Days per Week:</label>
+            <label for="daysInWeek">Hepdäň günleri:</label>
             <select
               v-model="newRoadmapData.daysInWeek"
               id="daysInWeek"
@@ -144,9 +181,9 @@ onMounted(() => {
 
           <div class="modal-actions">
             <button type="submit" :disabled="loading">
-              {{ loading ? 'Saving...' : 'Create Roadmap' }}
+              {{ loading ? 'Saving...' : 'Ýol Karta Döret' }}
             </button>
-            <button type="button" @click="closeModal">Cancel</button>
+            <button type="button" @click="closeModal">Ýatyr</button>
           </div>
         </form>
       </div>
@@ -155,7 +192,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* General Layout */
 .dashboard-container {
   max-width: 1500px;
   margin: auto;
@@ -166,7 +202,6 @@ onMounted(() => {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
 
-/* Title */
 h1 {
   font-size: 28px;
   color: #ffffff;
