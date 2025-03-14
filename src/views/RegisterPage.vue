@@ -21,7 +21,6 @@ const register = async () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        username: username.value,
         email: email.value,
         password: password.value,
         first_name: first_name.value,
@@ -51,8 +50,10 @@ const register = async () => {
   <div class="form-wrapper">
     <div class="form-container">
       <h2>Register</h2>
-      <input v-model="username" type="text" placeholder="Username" required />
       <input v-model="email" type="email" placeholder="Email" required />
+      <input v-model="first_name" type="text" placeholder="Ady" required />
+      <input v-model="last_name" type="text" placeholder="Familiýasy" required />
+      <input v-model="date_of_birth" type="text" placeholder="Doglan Senesi" required />
       <input v-model="password" type="password" placeholder="Password" required @keydown.enter="register" />
       <button @click="register">Register</button>
       <p>Already have an account? <router-link to="/login">Login</router-link></p>
